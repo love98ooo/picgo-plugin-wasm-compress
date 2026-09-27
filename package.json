@@ -1,0 +1,35 @@
+{
+  "name": "picgo-plugin-wasm-compress",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cross-platform AVIF and WebP compression for PicGo, including animation",
+  "main": "index.js",
+  "files": ["index.js", "codecs.js", "avif-sequence.js", "benchmark.js", "README.md", "THIRD_PARTY_NOTICES.md", "LICENSE"],
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "test": "node --test",
+    "bench": "node benchmark.js"
+  },
+  "keywords": [
+    "picgo",
+    "picgo-plugin",
+    "avif",
+    "webp",
+    "compression",
+    "wasm"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@jsquash/avif": "2.1.1",
+    "exif-parser": "^0.1.12",
+    "gifuct-js": "2.1.2",
+    "jpeg-js": "0.4.4",
+    "upng-js": "2.1.0",
+    "wasm-webp": "0.1.0"
+  },
+  "devDependencies": {
+    "omggif": "^1.0.10"
+  }
+}
