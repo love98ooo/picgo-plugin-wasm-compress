@@ -39,6 +39,8 @@ npm test
 
 ## Benchmark
 
+在源码仓库中可生成样本，也可以直接传入自己的图片：
+
 ```sh
 node benchmarks/make-fixtures.js
 npm run bench -- benchmarks/generated/photo-like.jpg benchmarks/generated/screenshot.png benchmarks/generated/motion.gif
