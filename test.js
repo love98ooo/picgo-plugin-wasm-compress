@@ -8,6 +8,13 @@ const { GifWriter } = require('omggif')
 const plugin = require('./')
 const { decode, encodeWebp } = require('./codecs')
 
+test('provides metadata required by PicGo GUI plugin list', () => {
+  const pkg = require('./package.json')
+  assert.ok(pkg.author.name)
+  assert.ok(pkg.keywords.includes('picgo-gui-plugin'))
+  assert.ok(require('node:fs').statSync(require('node:path').join(__dirname, 'logo.png')).size > 0)
+})
+
 function context(output, config = {}) {
   const warnings = []
   const ctx = {
