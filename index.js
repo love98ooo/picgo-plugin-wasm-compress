@@ -72,7 +72,8 @@ async function handle(ctx) {
         try {
           const output = await encode(image, format, config)
           if (output && output.length < best.buffer.length) best = { buffer: output, format }
-          if (mode !== 'auto' && best.format === mode) break
+          if (mode !== 'auto' && best.format === mode &&
+            100 * (1 - best.buffer.length / source.length) >= config.minSavingPercent) break
         } catch (error) {
           ctx.log.warn(`[wasm-compress] ${format}: ${error.message}`)
         }

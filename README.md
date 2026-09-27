@@ -1,53 +1,54 @@
 # picgo-plugin-wasm-compress
 
-PicGo 上传前压缩图片的插件。编码在本机完成，运行依赖只有 JavaScript 与 WebAssembly；无需 Sharp、系统命令、Rosetta 或按操作系统下载的可执行文件。
+PicGo 上传前图片压缩插件，使用 JavaScript 和 WebAssembly，在各平台运行时无需原生模块或外部编码器。
 
-## 功能
+## 支持范围
 
-- 输入：JPEG、PNG/APNG、GIF、WebP 动图或静图、静态 AVIF。
-- 输出：AVIF 或 WebP；动图默认输出 AVIF，保留帧时长、透明度和循环次数。
-- 默认先尝试 AVIF；如果 AVIF 编码失败或未比原图小，再尝试 WebP。都不合算时保留原文件。
-- `auto` 模式同时编码 AVIF 和 WebP，从符合最低节省比例的结果中选体积更小的。
-- JPEG 会在转码前应用 EXIF 方向。元数据不会复制到压缩结果。
-- 对输入的 AVIF 动图直接保留原文件，避免当前 WASM 解码器只解出首帧造成动画丢失。
+| 输入 | 输出 |
+| --- | --- |
+| JPEG、PNG、静态 AVIF、静态 WebP | AVIF 或 WebP |
+| GIF、APNG、动态 WebP | 动态 AVIF 或动态 WebP |
 
-## 开发和安装
+默认输出 AVIF；如果编码失败或未达到最小节省比例，会尝试 WebP，仍不合算则保留原图。`auto` 会同时编码两种格式并选较小结果。动图保留帧时长、透明度和循环次数；JPEG 会先应用 EXIF 方向。
 
-要求 PicGo 使用 Node.js 20.9 或更新版本。
+## 安装
+
+要求 Node.js 20.9+ 和 PicGo 2.3.0+。在项目目录运行：
 
 ```sh
-cd ~/Projects/picgo-plugin-wasm-compress
-npm install
+npm ci
 npm test
 ```
 
-PicGo 2.3.0+ 的 GUI 可在「插件设置」中导入本地插件文件夹，选择 `~/Projects/picgo-plugin-wasm-compress`。或者在 PicGo 配置文件所在的目录执行 `npm install ~/Projects/picgo-plugin-wasm-compress`。安装后需要**完全退出并重新启动** PicGo 才能加载修改。详见 [PicGo 官方本地插件开发文档](https://docs.picgo.app/core/dev-guide/deploy)。
-
-**暂未发布到 npm。** `package.json` 保留 `private: true`，避免误发布。
+在 PicGo「插件设置」中导入本地项目文件夹，然后完全退出并重启 PicGo。也可以按 [PicGo 本地插件文档](https://docs.picgo.app/core/dev-guide/deploy)从配置目录安装。
 
 ## 配置
 
-| 名称 | 默认 | 说明 |
+| 配置项 | 默认值 | 作用 |
 | --- | --- | --- |
-| `format` | `avif` | 静图：`avif` / `webp` / `auto` / `keep` |
-| `animatedFormat` | `avif` | 动图：`avif` / `webp` / `auto` / `keep` |
-| `preset` | `balanced` | AVIF 编码速度：`fast` / `balanced` / `small`；越慢通常体积越小 |
-| `avifQuality` | `62` | AVIF 画质 1–100 |
-| `webpQuality` | `82` | WebP 画质 1–100 |
-| `minSavingPercent` | `1` | 压缩至少节省该比例才替换原图 |
-| `maxFrames` | `200` | 超过此帧数时跳过 |
-| `maxPixels` | `16000000` | 单帧超过此像素数时跳过 |
+| `format` | `avif` | 静图输出：`avif`、`webp`、`auto`、`keep` |
+| `animatedFormat` | `avif` | 动图输出：`avif`、`webp`、`auto`、`keep` |
+| `preset` | `balanced` | AVIF 速度档：`fast`、`balanced`、`small` |
+| `avifQuality` | `62` | AVIF 画质，1–100 |
+| `webpQuality` | `82` | WebP 画质，1–100 |
+| `minSavingPercent` | `1` | 至少节省的百分比 |
+| `maxFrames` | `200` | 动图帧数上限 |
+| `maxPixels` | `16000000` | 单帧像素上限 |
 
-`keep` 会优化原本就是 AVIF 或 WebP 的文件。输入格式为 JPEG、PNG 或 GIF 时保留原文件，因为本插件的编码器只输出 AVIF/WebP。
+`keep` 仅重压原本就是 AVIF/WebP 的图片；其他格式保持原文件。
 
-可以用自己的图片比较体积和耗时：
+## Benchmark
 
 ```sh
-npm run bench -- /path/to/photo.jpg /path/to/animation.gif
+node benchmarks/make-fixtures.js
+npm run bench -- benchmarks/generated/photo-like.jpg benchmarks/generated/screenshot.png benchmarks/generated/motion.gif
+npm run bench -- /path/to/your-image.jpg
 ```
 
-## 取舍
+输出包含原图与两种格式的体积、节省比例、首次和后续编码耗时、RGB/Alpha PSNR、运行环境和实际采用的格式。方法与一组可复现结果见 [BENCHMARK.md](BENCHMARK.md)。
 
-纯 WASM 兼容性好，但速度通常慢于同设备上的原生编码器。动图 AVIF 使用逐帧 AV1 编码与 JS 容器封装，保留帧时长和循环，但通常不及使用帧间预测的 AV1 视频编码器省空间。默认选 AVIF 是格式偏好，并不保证它对每张图都是最小或最快；可以用 `auto` 比较文件体积，用 `fast` 缩短编码时间。
+## 限制
 
-对动画、EXIF 方向以及保留原图的情况有自动测试。项目创建时还用 libavif 的 `avifdec --info` 独立验证了 AVIF 动图的帧数、100/200 ms 时长、透明通道，以及无限/有限循环。这个命令只用于开发验证，不是运行依赖。
+- 输入的动态 AVIF 原样保留；当前 WASM 解码器只提供首帧解码。
+- 动态 AVIF 逐帧编码，不使用帧间预测；某些动画的 WebP 会更小、更快。
+- 转码后不复制原文件的 EXIF、ICC 等元数据。

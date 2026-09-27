@@ -146,7 +146,6 @@ async function decode(bytes, format) {
     return { width: image.width, height: image.height, frames: [{ data: image.data, duration: 100 }] }
   }
   if (format === 'avif') {
-    // @jsquash/avif exposes still decode only; the caller skips AVIF sequences.
     const image = await (await avifDecode())(arrayBuffer(bytes))
     return { width: image.width, height: image.height, frames: [{ data: image.data, duration: 100 }] }
   }

@@ -1,7 +1,5 @@
 'use strict'
 
-// AVIF image-sequence muxing based on the MIT-licensed ISOBMFF approach in
-// x4163/pixijs-live2d-spine-viewer (see THIRD_PARTY_NOTICES.md).
 const u16 = n => { const b = Buffer.alloc(2); b.writeUInt16BE(n); return b }
 const u32 = n => { const b = Buffer.alloc(4); b.writeUInt32BE(n >>> 0); return b }
 const u64 = n => { const b = Buffer.alloc(8); b.writeBigUInt64BE(BigInt(n)); return b }
