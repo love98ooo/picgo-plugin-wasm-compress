@@ -13,14 +13,13 @@ PicGo 上传前图片压缩插件，使用 JavaScript 和 WebAssembly，在各�
 
 ## 安装
 
-要求 Node.js 20.9+ 和 PicGo 2.3.0+。在项目目录运行：
+要求 Node.js 20.9+ 和 PicGo 2.3.0+。在 PicGo「插件设置」搜索 `wasm-compress` 并安装，随后完全退出并重启 PicGo。PicGo CLI 可运行：
 
 ```sh
-npm ci
-npm test
+picgo install wasm-compress
 ```
 
-在 PicGo「插件设置」中导入本地项目文件夹，然后完全退出并重启 PicGo。也可以按 [PicGo 本地插件文档](https://docs.picgo.app/core/dev-guide/deploy)从配置目录安装。
+从源码测试时，在项目目录运行 `npm ci` 和 `npm test`，再按 [PicGo 本地插件文档](https://docs.picgo.app/core/dev-guide/deploy)导入项目文件夹。
 
 ## 配置
 
